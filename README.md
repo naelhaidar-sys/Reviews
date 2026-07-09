@@ -9,10 +9,13 @@ Target-based monthly bonus calculator ($550 cap) for client recovery metrics:
 
 ## Live site
 
-**Open now:**  
-https://sin-root-batch-textiles.trycloudflare.com/
+**Open now (recommended):**  
+https://1363e474cfcd6a.lhr.life/
 
-**Permanent HTML preview:**  
+**Backup tunnel:**  
+https://competitions-intro-timely-rep.trycloudflare.com/
+
+**Permanent HTML preview (always works from GitHub):**  
 https://html-preview.github.io/?url=https://github.com/naelhaidar-sys/Reviews/blob/main/index.html
 
 **GitHub Pages (after one-time enable in Settings → Pages → GitHub Actions):**  
