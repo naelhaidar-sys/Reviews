@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Recovery Bonus Calculator</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f7f8fa; color: #1a1a2e; font-size: 13px; padding: 24px; }
+.wrap { max-width: 1180px; margin: 0 auto; }
+.header { background: linear-gradient(135deg, #111827, #1f2937); color: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; }
+.header h1 { font-size: 24px; font-weight: 650; margin-bottom: 8px; }
+.header p { color: #d1d5db; line-height: 1.55; max-width: 940px; }
+.card { background: #fff; border: 1px solid #e8e9eb; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+.card-title { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.calc-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 12px; }
+.bonus-item { border: 1px solid #e8e9eb; border-radius: 12px; padding: 1rem; margin-bottom: 0.8rem; }
+.bonus-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 0.85rem; }
+.bonus-head h3 { font-size: 15px; font-weight: 650; margin-bottom: 4px; }
+.bonus-head p { font-size: 12px; color: #6b7280; line-height: 1.4; }
+.max-pill { display: inline-flex; white-space: nowrap; background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 650; }
+.input-row { display: grid; grid-template-columns: 1fr 1fr 120px; gap: 10px; align-items: end; }
+.input-row-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 10px; }
+.field label { display: block; color: #6b7280; font-size: 11px; margin-bottom: 5px; }
+.field input { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 9px 10px; font-size: 14px; outline: none; }
+.field input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+.result-box { background: #f9fafb; border-radius: 8px; padding: 9px 10px; text-align: right; }
+.result-box .small { font-size: 10px; color: #9ca3af; margin-bottom: 3px; }
+.result-box .big { font-size: 16px; font-weight: 650; }
+.progress { height: 8px; background: #eef0f3; border-radius: 999px; margin-top: 12px; overflow: hidden; }
+.progress > div { height: 100%; width: 0%; background: linear-gradient(90deg, #6366f1, #10b981); transition: width .2s ease; }
+.note { font-size: 11px; color: #9ca3af; margin-top: 8px; }
+.small-muted { color:#9ca3af; font-size:11px; line-height:1.45; margin-top:8px; }
+.side-panel { position: sticky; top: 18px; }
+.breakdown { display: grid; gap: 8px; }
+.row { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #f3f4f6; padding: 8px 0; }
+.row:last-child { border-bottom: 0; }
+.row span:first-child { color: #6b7280; }
+.row span:last-child { font-weight: 650; }
+.final { display: flex; align-items: center; justify-content: space-between; background: #f0fdf4; border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1rem; }
+.final-label { font-size: 13px; color: #6b7280; }
+.final-value { font-size: 32px; font-weight: 700; color: #059669; }
+.lock { margin-top: 1rem; padding: 1rem; border-radius: 10px; border: 1px solid #e5e7eb; background: #f9fafb; }
+.lock h3 { font-size: 13px; margin-bottom: 10px; }
+.checks { display: grid; gap: 8px; }
+.check-row { display: flex; align-items: center; gap: 8px; color: #6b7280; font-size: 12px; }
+.check-row input { width: 16px; height: 16px; }
+.status { margin-top: 10px; font-size: 12px; font-weight: 650; padding: 8px 10px; border-radius: 8px; }
+.status.good { color: #065f46; background: #d1fae5; }
+.status.bad { color: #991b1b; background: #fee2e2; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { color: #9ca3af; text-align: left; font-size: 11px; font-weight: 600; padding: 7px 8px; border-bottom: 1px solid #f3f4f6; }
+td { color: #6b7280; padding: 7px 8px; border-bottom: 1px solid #f3f4f6; }
+td.money { color: #111827; font-weight: 650; }
+.formula { background: #111827; color: #f9fafb; border-radius: 10px; padding: 1rem; font-size: 12px; line-height: 1.55; margin-top: 1rem; }
+.formula code { color: #a7f3d0; }
+.farewell-grid { display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-top: 10px; }
+.mini { background:#f9fafb; border:1px solid #eef0f3; border-radius:10px; padding:10px; }
+.mini-label { color:#9ca3af; font-size:10px; margin-bottom:4px; }
+.mini-value { font-size:18px; font-weight:650; }
+@media(max-width: 900px) { .calc-grid, .input-row-5, .farewell-grid { grid-template-columns: 1fr; } .input-row { grid-template-columns: 1fr; } .side-panel { position: static; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Client Recovery Bonus Calculator</h1>
+    <p>
+      Target-based model with no brackets. Each month, management sets a target per metric.
+      If the employee reaches the target, he receives the full amount for that metric.
+      If he reaches half the target, he receives half the amount. Each metric is capped at its assigned max.
+      The total monthly cap is $550.
+    </p>
+  </div>
+
+  <div class="calc-grid">
+    <div>
+      <div class="card">
+        <div class="card-title">Target inputs</div>
+
+        <div class="bonus-item">
+          <div class="bonus-head">
+            <div>
+              <h3>Public Review Recovery</h3>
+              <p>Google, Trustpilot, Facebook, Instagram, or other public reviews that were removed, improved, rating-improved, or updated positively.</p>
+            </div>
+            <span class="max-pill">Max $180</span>
+          </div>
+          <div class="input-row">
+            <div class="field"><label>Recovered public reviews this month</label><input type="number" min="0" step="1" id="publicActual" value="5" oninput="update()"></div>
+            <div class="field"><label>Monthly target</label><input type="number" min="1" step="1" id="publicTarget" value="10" oninput="update()"></div>
+            <div class="result-box"><div class="small">Bonus</div><div class="big" id="publicBonus">$0</div></div>
+          </div>
+          <div class="progress"><div id="publicProgress"></div></div>
+          <div class="note" id="publicNote">—</div>
+          <div class="small-muted">Public reviews remain a high-weight metric because the old scheme paid $20 per removed review and public reviews create visible reputation damage.</div>
+        </div>
+
+        <div class="bonus-item">
+          <div class="bonus-head">
+            <div>
+              <h3>Contract Protection</h3>
+              <p>Competitor-risk clients whose contracts are still active 30 days after the recovery contact.</p>
+            </div>
+            <span class="max-pill">Max $95</span>
+          </div>
+          <div class="input-row">
+            <div class="field"><label>Contracts protected</label><input type="number" min="0" step="1" id="contractActual" value="5" oninput="update()"></div>
+            <div class="field"><label>Monthly target</label><input type="number" min="1" step="1" id="contractTarget" value="10" oninput="update()"></div>
+            <div class="result-box"><div class="small">Bonus</div><div class="big" id="contractBonus">$0</div></div>
+          </div>
+          <div class="progress"><div id="contractProgress"></div></div>
+          <div class="note" id="contractNote">—</div>
+          <div class="small-muted">This is lower than public reviews because the old scheme paid $10 per protected contract, but it still protects revenue.</div>
+        </div>
+
+        <div class="bonus-item">
+          <div class="bonus-head">
+            <div>
+              <h3>Farewell Status Recovery</h3>
+              <p>Rewards improving farewell outcomes. Acceptable farewell means Negative Recovered, Neutral, or Positive. This is important because even leaving clients should exit without hostility.</p>
+            </div>
+            <span class="max-pill">Max $120</span>
+          </div>
+          <div class="input-row-5">
+            <div class="field"><label>Negative</label><input type="number" min="0" step="1" id="fsNegative" value="74" oninput="update()"></div>
+            <div class="field"><label>Negative Recovered</label><input type="number" min="0" step="1" id="fsRecovered" value="25" oninput="update()"></div>
+            <div class="field"><label>Neutral</label><input type="number" min="0" step="1" id="fsNeutral" value="47" oninput="update()"></div>
+            <div class="field"><label>Positive</label><input type="number" min="0" step="1" id="fsPositive" value="8" oninput="update()"></div>
+            <div class="field"><label>Unknown</label><input type="number" min="0" step="1" id="fsUnknown" value="50" oninput="update()"></div>
+          </div>
+          <div class="farewell-grid">
+            <div class="mini"><div class="mini-label">Acceptable farewell count</div><div class="mini-value" id="fsAcceptable">—</div></div>
+            <div class="mini"><div class="mini-label">Acceptable farewell rate</div><div class="mini-value" id="fsAcceptableRate">—</div></div>
+            <div class="mini"><div class="mini-label">Total farewell cases</div><div class="mini-value" id="fsTotal">—</div></div>
+          </div>
+          <div class="input-row" style="margin-top:12px;">
+            <div class="field"><label>Acceptable farewell cases</label><input type="number" min="0" step="1" id="farewellActual" value="80" oninput="update()"></div>
+            <div class="field"><label>Monthly target</label><input type="number" min="1" step="1" id="farewellTarget" value="100" oninput="update()"></div>
+            <div class="result-box"><div class="small">Bonus</div><div class="big" id="farewellBonus">$0</div></div>
+          </div>
+          <div class="progress"><div id="farewellProgress"></div></div>
+          <div class="note" id="farewellNote">—</div>
+          <div class="small-muted">Current chart baseline: Negative Recovered 25 + Neutral 47 + Positive 8 = 80 acceptable cases out of 204 total.</div>
+        </div>
+
+        <div class="bonus-item">
+          <div class="bonus-head">
+            <div>
+              <h3>Quality & Reporting Discipline</h3>
+              <p>Quality points can include SLA, documentation, no fake promises, no unauthorized offers, proper escalation, and submitted reputation report.</p>
+            </div>
+            <span class="max-pill">Max $60</span>
+          </div>
+          <div class="input-row">
+            <div class="field"><label>Quality points achieved</label><input type="number" min="0" step="1" id="qualityActual" value="80" oninput="update()"></div>
+            <div class="field"><label>Quality target points</label><input type="number" min="1" step="1" id="qualityTarget" value="100" oninput="update()"></div>
+            <div class="result-box"><div class="small">Bonus</div><div class="big" id="qualityBonus">$0</div></div>
+          </div>
+          <div class="progress"><div id="qualityProgress"></div></div>
+          <div class="note" id="qualityNote">—</div>
+          <div class="small-muted">This is kept to improve skill, documentation, and clean handling, not just raw recovery results.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Monthly result table</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Metric</th><th>Actual</th><th>Target</th><th>Achievement</th><th>Max</th><th>Bonus</th></tr></thead>
+            <tbody id="resultRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="card">
+        <div class="card-title">Calculation breakdown</div>
+        <div class="breakdown">
+          <div class="row"><span>Public review recovery</span><span id="bPublic">$0</span></div>
+          <div class="row"><span>Contract protection</span><span id="bContract">$0</span></div>
+          <div class="row"><span>Farewell status recovery</span><span id="bFarewell">$0</span></div>
+          <div class="row"><span>Quality & reporting</span><span id="bQuality">$0</span></div>
+        </div>
+
+        <div class="final">
+          <span class="final-label">Bonus this month</span>
+          <span class="final-value" id="finalBonus">$0</span>
+        </div>
+
+        <div class="lock">
+          <h3>Quality gate</h3>
+          <div class="checks">
+            <label class="check-row"><input type="checkbox" id="noFake" checked oninput="update()"> No fake promises</label>
+            <label class="check-row"><input type="checkbox" id="noUnauthorized" checked oninput="update()"> No unauthorized offers</label>
+            <label class="check-row"><input type="checkbox" id="noComplaint" checked oninput="update()"> No handling complaints</label>
+            <label class="check-row"><input type="checkbox" id="reportSubmitted" checked oninput="update()"> Monthly reputation report submitted</label>
+          </div>
+          <div class="status good" id="lockStatus">—</div>
+        </div>
+
+        <div class="formula">
+          <div><strong>Formula per metric</strong></div>
+          <div><code>Achievement = Actual ÷ Target</code></div>
+          <div><code>Metric Bonus = Achievement × Metric Max</code></div>
+          <div><code>Metric Bonus is capped at its max.</code></div>
+          <div><code>Total Bonus is capped at $550.</code></div>
+          <br>
+          <div>Example: target is 100 acceptable farewell cases, actual is 80, max is $120 → bonus is $96.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const metrics = [
+  { key:'public', label:'Public Review Recovery', actual:'publicActual', target:'publicTarget', max:180, bonus:'publicBonus', progress:'publicProgress', note:'publicNote' },
+  { key:'contract', label:'Contract Protection', actual:'contractActual', target:'contractTarget', max:95, bonus:'contractBonus', progress:'contractProgress', note:'contractNote' },
+  { key:'farewell', label:'Farewell Status Recovery', actual:'farewellActual', target:'farewellTarget', max:120, bonus:'farewellBonus', progress:'farewellProgress', note:'farewellNote' },
+  { key:'quality', label:'Quality & Reporting Discipline', actual:'qualityActual', target:'qualityTarget', max:60, bonus:'qualityBonus', progress:'qualityProgress', note:'qualityNote' }
+];
+
+function money(n) {
+  return '$' + (Math.round(n * 100) / 100).toLocaleString(undefined, {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2});
+}
+function num(id) {
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? 0 : v;
+}
+function calcMetric(m) {
+  const actual = Math.max(0, num(m.actual));
+  const target = Math.max(1, num(m.target));
+  const rawAchievement = actual / target;
+  const cappedAchievement = Math.min(rawAchievement, 1);
+  const bonus = cappedAchievement * m.max;
+  return { actual, target, rawAchievement, cappedAchievement, bonus };
+}
+function updateFarewell() {
+  const neg = Math.max(0, num('fsNegative'));
+  const rec = Math.max(0, num('fsRecovered'));
+  const neu = Math.max(0, num('fsNeutral'));
+  const pos = Math.max(0, num('fsPositive'));
+  const unk = Math.max(0, num('fsUnknown'));
+  const total = neg + rec + neu + pos + unk;
+  const acceptable = rec + neu + pos;
+  const rate = total > 0 ? acceptable / total : 0;
+  document.getElementById('fsAcceptable').textContent = acceptable.toLocaleString();
+  document.getElementById('fsTotal').textContent = total.toLocaleString();
+  document.getElementById('fsAcceptableRate').textContent = Math.round(rate * 1000) / 10 + '%';
+}
+function update() {
+  updateFarewell();
+
+  let total = 0;
+  const rows = [];
+  metrics.forEach(m => {
+    const r = calcMetric(m);
+    total += r.bonus;
+    document.getElementById(m.bonus).textContent = money(r.bonus);
+    document.getElementById(m.progress).style.width = Math.min(r.rawAchievement * 100, 100) + '%';
+    const pct = Math.round(r.rawAchievement * 100);
+    const cappedPct = Math.round(r.cappedAchievement * 100);
+    const note = pct >= 100
+      ? `Target reached. Full ${money(m.max)} earned for this metric.`
+      : `${pct}% of target reached. ${cappedPct}% of max bonus earned.`;
+    document.getElementById(m.note).textContent = note;
+    rows.push(`<tr><td>${m.label}</td><td>${r.actual}</td><td>${r.target}</td><td>${pct}%</td><td class="money">${money(m.max)}</td><td class="money">${money(r.bonus)}</td></tr>`);
+  });
+
+  const cleanHandling =
+    document.getElementById('noFake').checked &&
+    document.getElementById('noUnauthorized').checked &&
+    document.getElementById('noComplaint').checked &&
+    document.getElementById('reportSubmitted').checked;
+
+  let final = Math.min(total, 550);
+  const lock = document.getElementById('lockStatus');
+
+  if (!cleanHandling) {
+    final = Math.min(final, 330);
+    lock.className = 'status bad';
+    lock.textContent = 'Quality gate failed. Total bonus is capped at $330 until handling/reporting issues are fixed.';
+  } else {
+    lock.className = 'status good';
+    lock.textContent = 'Quality gate passed. Full calculated bonus is allowed, capped at $550.';
+  }
+
+  document.getElementById('resultRows').innerHTML = rows.join('');
+  document.getElementById('bPublic').textContent = document.getElementById('publicBonus').textContent;
+  document.getElementById('bContract').textContent = document.getElementById('contractBonus').textContent;
+  document.getElementById('bFarewell').textContent = document.getElementById('farewellBonus').textContent;
+  document.getElementById('bQuality').textContent = document.getElementById('qualityBonus').textContent;
+  document.getElementById('finalBonus').textContent = money(final);
+}
+update();
+</script>
+</body>
+</html>
