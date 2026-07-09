@@ -9,14 +9,14 @@ Target-based monthly bonus calculator ($550 cap) for client recovery metrics:
 
 ## Live site
 
-**Temporary live URL (while this agent is running):**  
+**Open now (permanent preview):**  
+https://html-preview.github.io/?url=https://github.com/naelhaidar-sys/Reviews/blob/main/index.html
+
+**Temporary Cloudflare tunnel (while agent is running):**  
 https://klein-coastal-deliver-specialized.trycloudflare.com/
 
-**Permanent URL (after merge + GitHub Pages):**  
+**GitHub Pages (after Pages is enabled in repo Settings):**  
 https://naelhaidar-sys.github.io/Reviews/
-
-Also openable from GitHub via HTML Preview:  
-https://htmlpreview.github.io/?https://github.com/naelhaidar-sys/Reviews/blob/cursor/client-recovery-bonus-calculator-3032/index.html
 
 ## Local
 
